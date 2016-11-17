@@ -1,4 +1,4 @@
-#!flask/bin/python
+import sqlite3
 from flask import Flask, jsonify
 
 app = Flask(__name__)
@@ -29,21 +29,38 @@ def grab_data_as_json():
     table.close()
     return data
 
-def grab_data_as_array():
-    with open('csvDir/assetsTableComplete.csv','r') as table:
-        table_data = table.readlines()
-        data = {"data" : []}
-        for line in table_data[1:]:
-            line = line.split(',')
-            row = []
+def retrieve_assets(db_name,table_name):
 
-            for item in line:
-                row.append(item.replace('\n','').replace('"',''))
-            data["data"].append(row)
-    table.close()
+    conn = sqlite3.connect(str(db_name))
+    c = conn.cursor()
+
+    retrieve_statement = "SELECT * FROM "+str(table_name)
+
+    table_data = c.execute(retrieve_statement)
+
+    data = {"data" : []}
+    for line in table_data:
+        line = str(line).lstrip('(').rstrip(')').replace('"','').replace("'",'').replace("\n",'').split(',')
+
+        row = {
+            "city": line[9].lstrip(' ').rstrip(' '),
+            "contact": line[4].lstrip(' ').rstrip(' '),
+            "descript": line[5].lstrip(' ').rstrip(' '),
+            "id": line[0].lstrip(' ').rstrip(' '),
+            "lat": float(line[6]),
+            "lon": float(line[7]),
+            "name": line[1].lstrip(' ').rstrip(' '),
+            "state": line[10].lstrip(' ').rstrip(' '),
+            "street": line[8].lstrip(' ').rstrip(' '),
+            "telnum": line[2].lstrip(' ').rstrip(' '),
+            "website": line[3].lstrip(' ').rstrip(' '),
+            "zip": line[11].lstrip(' ').rstrip(' ')
+        }
+        data["data"].append(row)
+
     return data
 
-mapMetaData = grab_data_as_json()
+mapMetaData = retrieve_assets('assetMapper.db','assetdata')
 
 @app.route('/assetMapper/api/meta/', methods=['GET'])
 def get_map_data():
