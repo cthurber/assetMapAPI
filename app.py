@@ -1,5 +1,6 @@
 import sqlite3
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, render_template
+from add_form import Add_Asset_Form
 
 app = Flask(__name__)
 
@@ -65,6 +66,31 @@ mapMetaData = retrieve_assets('assetMapper.db','assetdata')
 @app.route('/assetMapper/api/meta/', methods=['GET'])
 def get_map_data():
     return jsonify(mapMetaData)
+
+@app.route('/', methods = ['GET', 'POST'])
+def home():
+    form = Add_Asset_Form(request.form)
+    if request.method == 'POST':
+
+        form_data = []
+        if form.city.data: form_data.append('city')
+        if form.contact.data: form_data.append('contact')
+        if form.descript.data: form_data.append('descript')
+        if form.idcode.data: form_data.append('idcode')
+        if form.lat.data: form_data.append('lat')
+        if form.lon.data: form_data.append('lon')
+        if form.name.data: form_data.append('name')
+        if form.state.data: form_data.append('state')
+        if form.street.data: form_data.append('street')
+        if form.telnum.data: form_data.append('telnum')
+        if form.website.data: form_data.append('website')
+        if form.zipcode.data: form_data.append('zipcode')
+
+        print(form_data)
+        # TODO Write function to send data to DB
+        return render_template('success.html', response_data=filter_on_requirements(form_data), form=form)
+    else:
+        return render_template('index.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
