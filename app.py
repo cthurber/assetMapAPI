@@ -104,6 +104,30 @@ def add_asset_page():
     else:
         return render_template('add-asset.html', form=form)
 
+@app.route('/assets/delete/', methods = ['GET', 'POST'])
+def delete_asset_page():
+    form = Add_Asset_Form(request.form)
+    if request.method == 'POST':
+        form_data = [
+                form.city.data,
+                form.contact.data,
+                form.descript.data,
+                form.idcode.data,
+                form.lat.data,
+                form.lon.data,
+                form.name.data,
+                form.state.data,
+                form.street.data,
+                form.telnum.data,
+                form.website.data,
+                form.zipcode.data
+            ]
+
+        add_asset(form_data,'assetMapper.db','assetdata')
+        return render_template('index.html', response_data=form_data, form=form)
+    else:
+        return render_template('delete-asset.html', data=retrieve_assets('assetMapper.db','assetdata'))
+
 @app.route('/')
 def home():
     return render_template('index.html')
