@@ -61,11 +61,9 @@ def retrieve_assets(db_name,table_name):
 
     return data
 
-mapMetaData = retrieve_assets('assetMapper.db','assetdata')
-
 @app.route('/assetMapper/api/meta/', methods=['GET'])
 def get_map_data():
-    return jsonify(mapMetaData)
+    return jsonify(retrieve_assets('assetMapper.db','assetdata'))
 
 @app.route('/', methods = ['GET', 'POST'])
 def home():
