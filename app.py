@@ -102,7 +102,7 @@ def add_asset_page():
             ]
 
         add_asset(form_data,'assetMapper.db','assetdata')
-        return render_template('add-asset.html', response_data=form_data, form=form)
+        return render_template('index.html', response_data=form_data, form=form)
     else:
         return render_template('add-asset.html', form=form)
 
