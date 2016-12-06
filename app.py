@@ -76,11 +76,9 @@ def add_asset(asset_array, db_name, table_name):
 
     return True
 
-mapMetaData = retrieve_assets('assetMapper.db','assetdata')
-
 @app.route('/assetMapper/api/meta/', methods=['GET'])
 def get_map_data():
-    return jsonify(mapMetaData)
+    return jsonify(retrieve_assets('assetMapper.db','assetdata'))
 
 @app.route('/assets/add/', methods = ['GET', 'POST'])
 def add_asset_page():
