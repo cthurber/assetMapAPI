@@ -42,53 +42,71 @@ def retrieve_assets(db_name,table_name):
     data = {"data" : []}
     for line in table_data:
         line = str(line).lstrip('(').rstrip(')').replace('"','').replace("'",'').replace("\n",'').split(',')
-
-        row = {
-            "city": line[9].lstrip(' ').rstrip(' '),
-            "contact": line[4].lstrip(' ').rstrip(' '),
-            "descript": line[5].lstrip(' ').rstrip(' '),
-            "id": line[0].lstrip(' ').rstrip(' '),
-            "lat": float(line[6]),
-            "lon": float(line[7]),
-            "name": line[1].lstrip(' ').rstrip(' '),
-            "state": line[10].lstrip(' ').rstrip(' '),
-            "street": line[8].lstrip(' ').rstrip(' '),
-            "telnum": line[2].lstrip(' ').rstrip(' '),
-            "website": line[3].lstrip(' ').rstrip(' '),
-            "zip": line[11].lstrip(' ').rstrip(' ')
-        }
-        data["data"].append(row)
-
+        try:
+            row = {
+                "city": line[9].lstrip(' ').rstrip(' '),
+                "contact": line[4].lstrip(' ').rstrip(' '),
+                "descript": line[5].lstrip(' ').rstrip(' '),
+                "id": line[0].lstrip(' ').rstrip(' '),
+                "lat": float(line[6]),
+                "lon": float(line[7]),
+                "name": line[1].lstrip(' ').rstrip(' '),
+                "state": line[10].lstrip(' ').rstrip(' '),
+                "street": line[8].lstrip(' ').rstrip(' '),
+                "telnum": line[2].lstrip(' ').rstrip(' '),
+                "website": line[3].lstrip(' ').rstrip(' '),
+                "zip": line[11].lstrip(' ').rstrip(' ')
+            }
+            data["data"].append(row)
+        except:
+            print("Could not load asset")
     return data
+
+def add_asset(asset_array, db_name, table_name):
+
+    conn = sqlite3.connect(str(db_name))
+    c = conn.cursor()
+
+    asset_string = str(asset_array).replace('[','(').replace(']',')')
+    insert_statement = "INSERT INTO "+table_name+" VALUES"+asset_string
+
+    c.execute(insert_statement)
+    conn.commit()
+    conn.close()
+
+    return True
 
 @app.route('/assetMapper/api/meta/', methods=['GET'])
 def get_map_data():
     return jsonify(retrieve_assets('assetMapper.db','assetdata'))
 
-@app.route('/', methods = ['GET', 'POST'])
-def home():
+@app.route('/assets/add/', methods = ['GET', 'POST'])
+def add_asset_page():
     form = Add_Asset_Form(request.form)
     if request.method == 'POST':
+        form_data = [
+                form.city.data,
+                form.contact.data,
+                form.descript.data,
+                form.idcode.data,
+                form.lat.data,
+                form.lon.data,
+                form.name.data,
+                form.state.data,
+                form.street.data,
+                form.telnum.data,
+                form.website.data,
+                form.zipcode.data
+            ]
 
-        form_data = []
-        if form.city.data: form_data.append('city')
-        if form.contact.data: form_data.append('contact')
-        if form.descript.data: form_data.append('descript')
-        if form.idcode.data: form_data.append('idcode')
-        if form.lat.data: form_data.append('lat')
-        if form.lon.data: form_data.append('lon')
-        if form.name.data: form_data.append('name')
-        if form.state.data: form_data.append('state')
-        if form.street.data: form_data.append('street')
-        if form.telnum.data: form_data.append('telnum')
-        if form.website.data: form_data.append('website')
-        if form.zipcode.data: form_data.append('zipcode')
-
-        print(form_data)
-        # TODO Write function to send data to DB
-        return render_template('success.html', response_data=filter_on_requirements(form_data), form=form)
+        add_asset(form_data,'assetMapper.db','assetdata')
+        return render_template('add-asset.html', response_data=form_data, form=form)
     else:
-        return render_template('index.html', form=form)
+        return render_template('add-asset.html', form=form)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
