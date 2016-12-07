@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask, jsonify, request, render_template
-from add_form import Add_Asset_Form
+from form_opps import Add_Asset_Form, Delete_Asset_Form
 
 app = Flask(__name__)
 
@@ -67,10 +67,30 @@ def add_asset(asset_array, db_name, table_name):
     conn = sqlite3.connect(str(db_name))
     c = conn.cursor()
 
-    asset_string = str(asset_array).replace('[','(').replace(']',')')
+    id_getter = 'SELECT COUNT(*) FROM '+table_name
+    c.execute(id_getter)
+    id_num = int(c.fetchone()[0]) + 1
+
+    asset_string = "('" + str(id_num) + "', "
+    asset_string += str(asset_array).replace('[','').replace(']',')')
     insert_statement = "INSERT INTO "+table_name+" VALUES"+asset_string
 
+    print(insert_statement)
+
     c.execute(insert_statement)
+    conn.commit()
+    conn.close()
+
+    return True
+
+def delete_asset(asset_id, db_name, table_name):
+
+    conn = sqlite3.connect(str(db_name))
+    c = conn.cursor()
+
+    delete_statement = 'DELETE FROM '+table_name+' WHERE "id text" = "'+str(asset_id)+'"'
+    print(delete_statement)
+    c.execute(delete_statement)
     conn.commit()
     conn.close()
 
@@ -85,48 +105,34 @@ def add_asset_page():
     form = Add_Asset_Form(request.form)
     if request.method == 'POST':
         form_data = [
-                form.city.data,
-                form.contact.data,
-                form.descript.data,
-                form.idcode.data,
-                form.lat.data,
-                form.lon.data,
                 form.name.data,
-                form.state.data,
-                form.street.data,
                 form.telnum.data,
                 form.website.data,
+                form.contact.data,
+                form.descript.data,
+                form.lat.data,
+                form.lon.data,
+                form.street.data,
+                form.city.data,
+                form.state.data,
                 form.zipcode.data
             ]
 
         add_asset(form_data,'assetMapper.db','assetdata')
-        return render_template('index.html', response_data=form_data, form=form)
+        return render_template('add-asset.html', response_data=form_data, form=form)
     else:
         return render_template('add-asset.html', form=form)
 
+@app.route('/assets/all', methods = ['GET', 'POST'])
+def asset_page():
+    return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'))
+
 @app.route('/assets/delete/', methods = ['GET', 'POST'])
 def delete_asset_page():
-    form = Add_Asset_Form(request.form)
+    form = Delete_Asset_Form(request.form)
     if request.method == 'POST':
-        form_data = [
-                form.city.data,
-                form.contact.data,
-                form.descript.data,
-                form.idcode.data,
-                form.lat.data,
-                form.lon.data,
-                form.name.data,
-                form.state.data,
-                form.street.data,
-                form.telnum.data,
-                form.website.data,
-                form.zipcode.data
-            ]
-
-        add_asset(form_data,'assetMapper.db','assetdata')
-        return render_template('index.html', response_data=form_data, form=form)
-    else:
-        return render_template('delete-asset.html', data=retrieve_assets('assetMapper.db','assetdata'))
+        delete_asset(form.idcode.data,'assetMapper.db','assetdata')
+        return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
 
 @app.route('/')
 def home():
