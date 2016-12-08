@@ -88,16 +88,18 @@ def update_asset(asset_array, db_name, table_name):
     conn = sqlite3.connect(str(db_name))
     c = conn.cursor()
 
-    id_num = str(asset_array[0])
+    id_num = str(asset_array["id"])
     asset_string = ""
-    for line in asset_array[1:]:
-        statement = '"'+ str(form.line.label) + '" text = "' + form.line.data + '",'
+    for line in asset_array:
+        if line != "id":
+            statement = '"'+ str(line) + ' text" = "' + asset_array[line] + '",'
+            asset_string += statement
 
-    update_statement = "UPDATE "+table_name+" SET "+asset_string+' WHERE "id text" = '+id_num
+    update_statement = "UPDATE "+table_name+" SET "+asset_string.rstrip(',')+' WHERE "id text" = "'+id_num+'"'
 
     print(update_statement)
 
-    # c.execute(update_statement)
+    c.execute(update_statement)
     conn.commit()
     conn.close()
 
@@ -152,28 +154,29 @@ def asset_page():
 def update_asset_page():
     form = Add_Asset_Form(request.form)
     if request.method == 'POST':
-        update_asset(form,'assetMapper.db','assetdata')
 
-        """
+
         label_content_pair = {
-            form.idcode.label : form.idcode.data,
-            form.name.label : form.name.data,
-            form.telnum.label : form.telnum.data,
-            form.website.label : form.website.data,
-            form.contact.label : form.contact.data,
-            form.descript.label : form.descript.data,
-            form.lat.label : form.lat.data,
-            form.lon.label : form.lon.data,
-            form.street.label : form.street.data,
-            form.city.label : form.city.data,
-            form.state.label : form.state.data,
-            form.zipcode.label : form.zipcode.data
+            "city": form.city.data,
+            "contact": form.contact.data,
+            "descript": form.descript.data,
+            "id": form.idcode.data,
+            "lat": form.lat.data,
+            "lon": form.lon.data,
+            "name": form.name.data,
+            "state": form.state.data,
+            "street": form.street.data,
+            "telnum": form.telnum.data,
+            "website": form.website.data,
+            "zip":form.zipcode.data
         }
-        """
-        
-        return render_template('list-assets.html', response_data=form_data, form=form)
+
+
+        update_asset(label_content_pair,'assetMapper.db','assetdata')
+
+        return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
     else:
-        return render_template('list-assets.html', form=form)
+        return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
 
 @app.route('/assets/delete/', methods = ['GET', 'POST'])
 def delete_asset_page():
