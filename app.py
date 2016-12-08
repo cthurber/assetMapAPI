@@ -55,7 +55,16 @@ def retrieve_assets(db_name,table_name):
                 "street": line[8].lstrip(' ').rstrip(' '),
                 "telnum": line[2].lstrip(' ').rstrip(' '),
                 "website": line[3].lstrip(' ').rstrip(' '),
-                "zip": line[11].lstrip(' ').rstrip(' ')
+                "zip": line[11].lstrip(' ').rstrip(' '),
+                "dateAdded": line[12].lstrip(' ').rstrip(' '),
+                "username": line[13].lstrip(' ').rstrip(' '),
+                "category":line[14].lstrip(' ').rstrip(' '),
+                "tags":line[15].lstrip(' ').rstrip(' ').split(';'),
+                "target_pop":line[16].lstrip(' ').rstrip(' ').split(';'),
+                "marketing":line[17].lstrip(' ').rstrip(' ').split(';'),
+                "services":line[18].lstrip(' ').rstrip(' ').split(';'),
+                "other_orgs":line[19].lstrip(' ').rstrip(' ').split(';'),
+                "collected_by":line[20].lstrip(' ').rstrip(' ')
             }
             data["data"].append(row)
         except:
@@ -120,7 +129,7 @@ def delete_asset(asset_id, db_name, table_name):
 
 @app.route('/assetMapper/api/meta/', methods=['GET'])
 def get_map_data():
-    return jsonify(retrieve_assets('assetMapper.db','assetdata'))
+    return jsonify(retrieve_assets('assets.db','assetdata'))
 
 @app.route('/assets/add/', methods = ['GET', 'POST'])
 def add_asset_page():
@@ -140,7 +149,7 @@ def add_asset_page():
                 form.zipcode.data
             ]
 
-        add_asset(form_data,'assetMapper.db','assetdata')
+        add_asset(form_data,'assets.db','assetdata')
         return render_template('add-asset.html', response_data=form_data, form=form)
     else:
         return render_template('add-asset.html', form=form)
@@ -148,7 +157,7 @@ def add_asset_page():
 @app.route('/assets/all', methods = ['GET', 'POST'])
 def asset_page():
     form = Add_Asset_Form(request.form)
-    return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
+    return render_template('list-assets.html', data=retrieve_assets('assets.db','assetdata'), form=form)
 
 @app.route('/assets/update/', methods = ['GET', 'POST'])
 def update_asset_page():
@@ -172,18 +181,18 @@ def update_asset_page():
         }
 
 
-        update_asset(label_content_pair,'assetMapper.db','assetdata')
+        update_asset(label_content_pair,'assets.db','assetdata')
 
-        return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
+        return render_template('list-assets.html', data=retrieve_assets('assets.db','assetdata'), form=form)
     else:
-        return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
+        return render_template('list-assets.html', data=retrieve_assets('assets.db','assetdata'), form=form)
 
 @app.route('/assets/delete/', methods = ['GET', 'POST'])
 def delete_asset_page():
     form = Delete_Asset_Form(request.form)
     if request.method == 'POST':
-        delete_asset(form.idcode.data,'assetMapper.db','assetdata')
-        return render_template('list-assets.html', data=retrieve_assets('assetMapper.db','assetdata'), form=form)
+        delete_asset(form.idcode.data,'assets.db','assetdata')
+        return render_template('list-assets.html', data=retrieve_assets('assets.db','assetdata'), form=form)
 
 @app.route('/')
 def home():
