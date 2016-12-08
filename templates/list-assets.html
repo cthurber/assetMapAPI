@@ -31,7 +31,7 @@
 									<div class="modal-content">
 										<div class="modal-header">
 											<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-											<h4 class="modal-title">Delete {{ row["name"] }} {{ row['id'] }}</h4>
+											<h4 class="modal-title">Delete {{ row["name"] }}</h4>
 										</div>
 										<form action="/assets/delete/" method="POST">
 											<div class="modal-body">
@@ -46,7 +46,68 @@
 									</div>
 								</div>
 							</div>
-            <td><i class="glyphicon glyphicon-edit"></i></td>
+
+            <td><i class="glyphicon glyphicon-edit" data-toggle="modal" data-target="#{{ row['id'] }}updatemodal"></i></td>
+              <!-- Delete Modal -->
+              <div class="modal fade" id="{{ row['id']}}updatemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title">Modify {{ row["name"] }}</h4>
+                    </div>
+                    <form action="/assets/update/" method="POST">
+                      <div class="modal-body">
+                        <!-- Form here -->
+                        <form class="form" method="POST" action="/assets/add/">
+                    			<label for="inputEmail" >Name</label>
+                    			{{ form.name(class_="form-control", value=row['name']) }}
+
+                    			<label for="inputEmail">Street</label>
+                    			{{ form.street(class_="form-control", value=row['street']) }}
+
+                    			<label for="inputEmail">City</label>
+                    			{{ form.city(class_="form-control", value=row['city']) }}
+
+                    			<label for="inputEmail">State</label>
+                    			{{ form.state(class_="form-control", value=row['state']) }}
+
+                    			<label for="inputEmail">Zipcode</label>
+                    			{{ form.zipcode(class_="form-control", value=row['zipcode']) }}
+
+                    			<label for="inputEmail">Point of Contact</label>
+                    			{{ form.contact(class_="form-control", value=row['contact']) }}
+
+                    			<label for="inputEmail">Phone</label>
+                    			{{ form.telnum(class_="form-control", value=row['telnum']) }}
+
+                    			<label for="inputEmail">Website</label>
+                    			{{ form.website(class_="form-control", value=row['website']) }}
+
+                    			<label for="inputEmail">Description</label>
+                    			{{ form.descript(class_="form-control", value=row['descript']) }}
+
+                    			<label for="inputEmail">Lattitude</label>
+                    			{{ form.lat(class_="form-control", value=row['lat']) }}
+
+                    			<label for="inputEmail">Longitude</label>
+                    			{{ form.lon(class_="form-control", value=row['lon']) }}
+                          <input type="hidden" name="idcode" value="{{ row['id'] }}">
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-info">Update</button>
+                          </div>
+                          </div>
+                        <!-- end of form -->
+                        </form>
+
+                      </div>
+
+                    </form>
+                  </div>
+                </div>
+              </div>
+
             <td>{{ row["name"] }}</td>
             <td>{{ row["contact"] if row["contact"]|length > 0 else 'No contact listed' }}</td>
             <td>{{ row["descript"] if row["descript"]|length > 0 else 'No description available' }}</td>
